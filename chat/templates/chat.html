@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}چت‌بات هوشمند{% endblock %}
+
+{% block content %}
+<div class="main-container">
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            {% if user.is_authenticated %}
+                <a href="{% url 'start_new_chat' %}" class="btn btn-primary new-chat-btn">
+                    <i class="fas fa-plus"></i> گفتگوی جدید
+                </a>
+            {% else %}
+                <div class="guest-auth-buttons">
+                    <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-light">ورود</a>
+                    <a href="{% url 'signup' %}" class="btn btn-outline-light">ثبت نام</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <nav class="chat-list">
+            {% if user.is_authenticated %}
+                {% for user_chat in user_chats %}
+                <div class="chat-item">
+                    <a href="{% url 'chat_page' chat_id=user_chat.id %}" class="chat-link {% if chat.id == user_chat.id %}active{% endif %}">
+                        {{ user_chat.title }}
+                    </a>
+                    <div class="chat-options">
+                        <button class="options-button"><i class="fas fa-ellipsis-v"></i></button>
+                        <div class="options-menu">
+                            <button type="button" class="menu-button rename-button" data-chat-id="{{ user_chat.id }}"><i class="fas fa-edit"></i> تغییر نام</button>
+                            <button type="button" class="menu-button share-button" data-chat-url="{% url 'chat_page' chat_id=user_chat.id %}"><i class="fas fa-share-alt"></i> اشتراک‌گذاری</button>
+                            <div class="menu-divider"></div>
+                            <a href="{% url 'delete_chat' chat_id=user_chat.id %}" class="delete-link"><i class="fas fa-trash-alt"></i> حذف</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="guest-sidebar-message">
+                    <p>برای ایجاد و ذخیره گفتگوهای خود، لطفاً وارد شوید یا ثبت نام کنید.</p>
+                </div>
+            {% endif %}
+        </nav>
+
+        <div class="sidebar-footer">
+            {% if user.is_authenticated %}
+                <i class="fas fa-user"></i>
+                <span>{{ request.user.username }}</span>
+                <a href="{% url 'logout' %}" class="logout-link" title="خروج"><i class="fas fa-sign-out-alt"></i></a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="chat-container" data-chat-id="{{ chat.id }}">
+        <div class="chat-header">
+            <button class="sidebar-toggle" id="sidebar-toggle-btn"><i class="fas fa-bars"></i></button>
+            <h1>{{ chat.title }}</h1>
+            {% if chat.created_at %}
+                <p>تاریخ ایجاد: {{ chat.created_at|date:"Y/m/d" }}</p>
+            {% endif %}
+        </div>
+        <div class="chat-messages" id="message-list">
+            {# CHANGE IS HERE: This message now only shows if the user is NOT logged in AND it's the guest chat. #}
+            {% if not user.is_authenticated and is_guest_chat %}
+                <div class="message bot-message">
+                    <div class="message-bubble">سلام! شما در حالت مهمان هستید. می‌توانید آزادانه چت کنید، اما پیام‌ها ذخیره نخواهند شد.</div>
+                </div>
+            {% endif %}
+            {% for message in messages %}
+            <div class="message {% if message.message_type == 'user' %}user-message{% else %}bot-message{% endif %}">
+                <div class="message-bubble">{{ message.content|linebreaksbr }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="chat-input-form">
+            <form id="chat-form" method="post" class="d-flex align-items-center gap-2">
+                <button class="btn-mic" type="button" id="mic-button" title="ضبط صدا"><i class="fas fa-microphone"></i></button>
+                <textarea id="message-input" class="message-input" placeholder="پیام خود را بنویسید..." rows="1" required></textarea>
+                <button class="btn-send" type="submit" title="ارسال پیام"><i class="fas fa-paper-plane"></i></button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'chat/js/chat.js' %}"></script>
+{% endblock %}
