@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 
 from .models import Chat, Message
 from . import rag_service
-
+from django.views.decorators.csrf import ensure_csrf_cookie 
 # --- نماهای مربوط به ثبت‌نام و ورود ---
 
 def signup_view(request):
@@ -46,7 +46,7 @@ def logout_view(request):
     return redirect('public_chat')
 
 # --- ویوهای جدید برای حالت مهمان ---
-
+@ensure_csrf_cookie
 def public_chat_view(request):
     """
     صفحه چت عمومی را برای همه کاربران نمایش می‌دهد.
