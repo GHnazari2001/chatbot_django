@@ -26,6 +26,6 @@
 
 * **Backend:** Python, Django
 * **Frontend:** HTML, CSS, JavaScript
-* **AI Services:** Vectara, Cohere, Azure AI
+* **AI Services:** Vectara, Azure AI
 * **Database:** mysql
 * **Deployment:** PythonAnywhere, Git, GitHub
